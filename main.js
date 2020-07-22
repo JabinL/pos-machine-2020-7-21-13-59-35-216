@@ -1,4 +1,4 @@
- // 商品的基本数据
+ // data
  
  var basicData = [{
             barcode: 'ITEM000000',
@@ -44,30 +44,29 @@
             'ITEM000004'
         ];
  
- // 打印账单
+ // print receipt
  function printReceipt(barCodeList){
 	 
-	 var cartItem = calculateItemSum(barCodeList);
-	 var cartItemDetails = getMoreItemDetails(cartItem);
-	 var totalPrice = calculateTotalPrice(cartItemDetails);
-	 var result = formatReceipt(cartItemDetails ,totalPrice);
+	 let cartItem = calculateItemSum(barCodeList);
+	 let cartItemDetails = getItemDetails(cartItem);
+	 let cartItemDetailsWithSubtotal  = calculateSubTotalprice(cartItemDetails)
+	 let totalPrice = calculateTotalPrice(cartItemDetailsWithSubtotal);
+	 let result = formatReceipt(cartItemDetailsWithSubtotal ,totalPrice);
 	 console.log(result);
 	 
  }
  
- printReceipt(barCodeList);
- // 统计各种商品的数量
  function calculateItemSum(barCodeList){
 	 
-	 var list = barCodeList;
+
 	 var cartItem = new Map();
 
-        for (var i = 0; i < list.length; i++) {
-            if (cartItem.has(list[i])) { // 判断该商品是否已存在
-                var num = cartItem.get(list[i]);
-                cartItem.set(list[i], num + 1);
+        for (let index = 0; index < barCodeList.length; index++) {
+            if (cartItem.has(barCodeList[index])) { // 判断该商品是否已存在
+                let sum = cartItem.get(barCodeList[index]);
+                cartItem.set(barCodeList[index], sum + 1);
             } else {
-                cartItem.set(list[i], 1);
+                cartItem.set(barCodeList[index], 1);
             }
         }
         return cartItem;
@@ -75,21 +74,21 @@
  }
  
  // 完善各种商品的详细信息
- function getMoreItemDetails(cartItem){
+ function getItemDetails(cartItem){
 	
 	 var cartItemDetails = new Array();
-        for (var [key, value] of cartItem) {
+        for (let [key, value] of cartItem) {
 
-            for (var i = 0; i < basicData.length; i++) {
+            for (let i = 0; i < basicData.length; i++) {
                 if (basicData[i].barcode === key) { // 找到了对应的商品
-                    var jsonObj = {
+                    let item = {
                         barcode: basicData[i].barcode,
                         name: basicData[i].name,
                         price: basicData[i].price,
                         quantity: value,
                         subtotal: basicData[i].price * value
                     }
-                    cartItemDetails.push(jsonObj);
+                    cartItemDetails.push(item);
                 }
             }
         }
@@ -97,28 +96,41 @@
 	 
  }
  
- // 统计所有商品的总价
+
+ function calculateSubTotalprice(cartItemDetails){
+	 
+	 for (let i = 0; i < cartItemDetails.length; i++) {
+            cartItemDetails[i].subtotal = cartItemDetails[i].price * cartItemDetails[i].quantity;
+        }
+		return cartItemDetails;
+ }
+ 
  function calculateTotalPrice(cartItemDetails){
 	 
 	 var totalPrice = 0;
-        for (var i = 0; i < cartItemDetails.length; i++) {
-            totalPrice += cartItemDetails[i].subtotal
+        for (let i = 0; i < cartItemDetails.length; i++) {
+            totalPrice += cartItemDetails[i].subtotal;
         }
         return totalPrice;
 	 
  }
  
- // 格式化账单数据
  function formatReceipt(cartItemDetails ,totalPrice){
-	 var str0 = "\n***<store earning no money>Receipt ***\n";
-        var str1 = "";
-        for (var i = 0; i < cartItemDetails.length; i++) {
-            str1 +=
+	let newLine = "\n" ;
+	 let strHead = newLine+"***<store earning no money>Receipt ***"+newLine;
+        let strBody = "";
+        for (let i = 0; i < cartItemDetails.length; i++) {
+            strBody +=
                 `Name: ${cartItemDetails[i].name}, Quantity: ${cartItemDetails[i].quantity},`+
-                ` Unit price: ${cartItemDetails[i].price} (yuan), Subtotal: ${cartItemDetails[i].subtotal} (yuan)\n`;
+                ` Unit price: ${cartItemDetails[i].price} (yuan), Subtotal: ${cartItemDetails[i].subtotal} (yuan)${newLine}`;
         }
-        var str2 = `----------------------\nTotal: ${totalPrice} (yuan)\n**********************`;
+        let strTail = `----------------------${newLine}Total: ${totalPrice} (yuan)${newLine}**********************`;
 
-        var result = str0 + str1+str2;
+        let result = strHead + strBody + strTail;
         return result; 
  }
+ 
+ 
+module.exports = {
+    printReceipt
+};
