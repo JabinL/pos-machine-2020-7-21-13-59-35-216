@@ -97,7 +97,7 @@
  }
  
 
- function calculateSubTotalprice(cartItemDetails){
+ function calculateSubTotalPrice(cartItemDetails){
 	 
 	 for (let i = 0; i < cartItemDetails.length; i++) {
             cartItemDetails[i].subtotal = cartItemDetails[i].price * cartItemDetails[i].quantity;
